@@ -58,7 +58,40 @@ namespace WebNET
         /// <returns>Bool</returns>
         internal static bool TryDecodeMessage(byte[] bytes, out string message)
         {
-            throw new NotImplementedException(nameof(TryDecodeMessage));
+            int op = bytes[0] & 0b_0000_1111;
+            int payload = bytes[1] & 0b_0111_1111;
+            int length = 0;
+            int startIndex = 2;
+
+            if (op == 8)
+            {
+                message = "Connection closed";
+                return false;
+            }
+
+            switch (payload)
+            {
+                case 126:
+                    length = 2;
+                    break;
+                case 127:
+                    length = 8;
+                    break;
+            }
+
+            startIndex += length;
+
+            byte[] mask = bytes.Skip(startIndex).Take(4).ToArray();
+            byte[] encoded = bytes.Skip(startIndex + 4).ToArray();
+            byte[] decoded = new byte[encoded.Length];
+
+            for (int i = 0; i < encoded.Length; i++)
+            {
+                decoded[i] = (byte)(encoded[i] ^ mask[i % 4]);
+            }
+
+            message = Encoding.UTF8.GetString(decoded);
+            return true;
         }
 
         /// <summary>
