@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
+using WebNET.EventArgs;
 
 namespace WebNET
 {
@@ -18,8 +16,9 @@ namespace WebNET
         private readonly TcpClient tcp;
         private readonly NetworkStream stream;
 
-        internal Func<int, Task> OnConnected;
-        internal Func<string, Task> OnReceived;
+        internal Func<ConnectedEventArgs, Task> OnConnected;
+        internal Func<ReceivedEventArgs, Task> OnReceived;
+        internal Func<DisconnectedEventArgs, Task> OnDisconnected;
 
         /// <summary>
         ///     Client ID
@@ -53,13 +52,12 @@ namespace WebNET
                     throw new Exception("Handshake failed");
                 }
 
-                OnConnected?.Invoke(Id);
+                OnConnected?.Invoke(new ConnectedEventArgs(Id));
                 await ReadAsync();
             }
             catch (Exception e)
             {
-                //Destroy client
-                Console.WriteLine(e);
+                OnDisconnected?.Invoke(new DisconnectedEventArgs(Id, e.Message));
             }
         }
 
@@ -80,9 +78,12 @@ namespace WebNET
                     continue;
 
                 if (!Utility.TryDecodeMessage(bytes, out string message))
+                {
+                    OnDisconnected?.Invoke(new DisconnectedEventArgs(Id, message));
                     return;
+                }
 
-                OnReceived?.Invoke(message);
+                OnReceived?.Invoke(new ReceivedEventArgs(Id, message));
             }
         }
     }

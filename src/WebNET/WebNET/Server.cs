@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading.Tasks;
+using WebNET.EventArgs;
 
 namespace WebNET
 {
@@ -16,8 +14,9 @@ namespace WebNET
         private readonly TcpListener listener;
         private readonly IPAddress ip;
 
-        public event Func<int, Task> OnClientConnection;
-        public event Func<string, Task> OnClientReceived;
+        public event Func<ConnectedEventArgs, Task> OnClientConnected;
+        public event Func<ReceivedEventArgs, Task> OnClientReceived;
+        public event Func<DisconnectedEventArgs, Task> OnClientDisconnected;
 
         /// <summary>
         ///     Setup the connection details using the machine's IPv4 address
@@ -43,8 +42,9 @@ namespace WebNET
                 {
                     Client client = new(this, tcp)
                     {
-                        OnConnected = OnClientConnection,
-                        OnReceived = OnClientReceived
+                        OnConnected = OnClientConnected,
+                        OnReceived = OnClientReceived,
+                        OnDisconnected = OnClientDisconnected
                     };
 
                     await client.StartAsync();
