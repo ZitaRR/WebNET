@@ -55,7 +55,7 @@ namespace WebNET
             catch (Exception e)
             {
                 //Destroy client
-                Console.WriteLine("Error: " + e.Message);
+                Console.WriteLine(e);
             }
         }
 
