@@ -18,6 +18,9 @@ namespace WebNET
         private readonly TcpClient tcp;
         private readonly NetworkStream stream;
 
+        internal Func<int, Task> OnConnected;
+        internal Func<string, Task> OnReceived;
+
         /// <summary>
         ///     Client ID
         /// </summary>
@@ -50,6 +53,7 @@ namespace WebNET
                     throw new Exception("Handshake failed");
                 }
 
+                OnConnected?.Invoke(Id);
                 await ReadAsync();
             }
             catch (Exception e)
@@ -65,7 +69,21 @@ namespace WebNET
         /// <returns>Task</returns>
         private async Task ReadAsync()
         {
-            throw new NotImplementedException(nameof(ReadAsync));
+            while (true)
+            {
+                if (!stream.DataAvailable)
+                    continue;
+
+                byte[] bytes = new byte[tcp.Available];
+                await stream.ReadAsync(bytes.AsMemory(0, bytes.Length));
+                if (bytes.Length <= 0)
+                    continue;
+
+                if (!Utility.TryDecodeMessage(bytes, out string message))
+                    return;
+
+                OnReceived?.Invoke(message);
+            }
         }
     }
 }

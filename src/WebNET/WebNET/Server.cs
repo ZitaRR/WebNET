@@ -16,6 +16,9 @@ namespace WebNET
         private readonly TcpListener listener;
         private readonly IPAddress ip;
 
+        public event Func<int, Task> OnClientConnection;
+        public event Func<string, Task> OnClientReceived;
+
         /// <summary>
         ///     Setup the connection details using the machine's IPv4 address
         /// </summary>
@@ -23,7 +26,7 @@ namespace WebNET
         public Server(int port)
         {
             ip = Dns.GetHostEntry(Dns.GetHostName()).AddressList[1];
-            listener = new TcpListener(ip, port);
+            listener = new(ip, port);
         }
 
         /// <summary>
@@ -36,7 +39,16 @@ namespace WebNET
             while (true)
             {
                 TcpClient tcp = await listener.AcceptTcpClientAsync();
-                _ = Task.Run(async () => await new Client(this, tcp).StartAsync());
+                _ = Task.Run(async () =>
+                {
+                    Client client = new(this, tcp)
+                    {
+                        OnConnected = OnClientConnection,
+                        OnReceived = OnClientReceived
+                    };
+
+                    await client.StartAsync();
+                });
             }
         }
     }
