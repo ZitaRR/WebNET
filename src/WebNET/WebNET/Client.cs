@@ -24,6 +24,7 @@ namespace WebNET
         ///     Client ID
         /// </summary>
         public int Id { get; }
+        public SocketState State { get; private set; } = SocketState.Connecting;
 
         /// <summary>
         ///     Wraps a TCP client and binds it to the server the TCP client originated from
@@ -49,15 +50,18 @@ namespace WebNET
             {
                 if (!await Utility.TryHandshakeAsync(tcp))
                 {
-                    throw new Exception("Handshake failed");
+                    State = SocketState.Closing;
+                    throw new SocketException(10053);
                 }
 
-                OnConnected?.Invoke(new ConnectedEventArgs(this));
+                State = SocketState.Open;
+                await OnConnected?.Invoke(new ConnectedEventArgs(this));
                 await ReadAsync();
             }
             catch (Exception e)
             {
-                OnDisconnected?.Invoke(new DisconnectedEventArgs(this, e.Message));
+                State = SocketState.Closed;
+                await OnDisconnected?.Invoke(new DisconnectedEventArgs(this, e.ToString()));
             }
         }
 
@@ -78,12 +82,9 @@ namespace WebNET
                     continue;
 
                 if (!Utility.TryDecodeMessage(bytes, out string message))
-                {
-                    OnDisconnected?.Invoke(new DisconnectedEventArgs(this, message));
-                    return;
-                }
+                    throw new Exception(message);
 
-                OnReceived?.Invoke(new ReceivedEventArgs(this, message));
+                await OnReceived ?.Invoke(new ReceivedEventArgs(this, message));
             }
         }
     }
