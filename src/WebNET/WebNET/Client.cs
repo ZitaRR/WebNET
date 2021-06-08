@@ -24,6 +24,10 @@ namespace WebNET
         ///     Client ID
         /// </summary>
         public int Id { get; }
+
+        /// <summary>
+        ///     The state of the socket
+        /// </summary>
         public SocketState State { get; private set; } = SocketState.Connecting;
 
         /// <summary>
