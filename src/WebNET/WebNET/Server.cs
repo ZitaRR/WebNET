@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -14,8 +15,19 @@ namespace WebNET
         private readonly TcpListener listener;
         private readonly IPAddress ip;
 
+        /// <summary>
+        ///     Fires upon client connection
+        /// </summary>
         public event Func<ConnectedEventArgs, Task> OnClientConnected;
+
+        /// <summary>
+        ///     Fires upon receiving data from client
+        /// </summary>
         public event Func<ReceivedEventArgs, Task> OnClientReceived;
+
+        /// <summary>
+        ///     Fires upon client disconnection
+        /// </summary>
         public event Func<DisconnectedEventArgs, Task> OnClientDisconnected;
 
         /// <summary>
