@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using WebNET.EventArgs;
@@ -31,6 +32,16 @@ namespace WebNET
         public SocketState State { get; private set; } = SocketState.Connecting;
 
         /// <summary>
+        ///     The local endpoint
+        /// </summary>
+        public EndPoint Local { get; }
+
+        /// <summary>
+        ///     The remote endpoint
+        /// </summary>
+        public EndPoint Remote { get; }
+
+        /// <summary>
         ///     Wraps a TCP client and binds it to the server the TCP client originated from
         /// </summary>
         /// <param name="server">The server</param>
@@ -40,6 +51,9 @@ namespace WebNET
             this.server = server;
             this.tcp = tcp;
             stream = this.tcp.GetStream();
+
+            Local = this.tcp.Client.LocalEndPoint;
+            Remote = this.tcp.Client.RemoteEndPoint;
 
             Id = ++entities;
         }
