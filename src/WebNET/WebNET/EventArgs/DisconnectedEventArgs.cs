@@ -6,18 +6,18 @@
     public readonly struct DisconnectedEventArgs
     {
         /// <summary>
-        ///     ID of the client
+        ///     The client that disconnected
         /// </summary>
-        public int ClientId { get; }
+        public Client Client { get; }
 
         /// <summary>
         ///     The reason for disconnecting
         /// </summary>
         public string Reason { get; }
 
-        internal DisconnectedEventArgs(int id, string reason)
+        internal DisconnectedEventArgs(Client client, string reason)
         {
-            ClientId = id;
+            Client = client;
             Reason = reason;
         }
     }

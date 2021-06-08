@@ -6,13 +6,13 @@
     public readonly struct ConnectedEventArgs
     {
         /// <summary>
-        ///     ID of the client
+        ///     The client that connected
         /// </summary>
-        public int Id { get; }
+        public Client Client { get; }
 
-        internal ConnectedEventArgs(int id)
+        internal ConnectedEventArgs(Client client)
         {
-            Id = id;
+            Client = client;
         }
     }
 }

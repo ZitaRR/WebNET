@@ -8,7 +8,7 @@ namespace WebNET
     /// <summary>
     ///     The client, handles the connection and its' operations
     /// </summary>
-    internal class Client
+    public sealed class Client
     {
         private static int entities = 0;
 
@@ -52,12 +52,12 @@ namespace WebNET
                     throw new Exception("Handshake failed");
                 }
 
-                OnConnected?.Invoke(new ConnectedEventArgs(Id));
+                OnConnected?.Invoke(new ConnectedEventArgs(this));
                 await ReadAsync();
             }
             catch (Exception e)
             {
-                OnDisconnected?.Invoke(new DisconnectedEventArgs(Id, e.Message));
+                OnDisconnected?.Invoke(new DisconnectedEventArgs(this, e.Message));
             }
         }
 
@@ -79,11 +79,11 @@ namespace WebNET
 
                 if (!Utility.TryDecodeMessage(bytes, out string message))
                 {
-                    OnDisconnected?.Invoke(new DisconnectedEventArgs(Id, message));
+                    OnDisconnected?.Invoke(new DisconnectedEventArgs(this, message));
                     return;
                 }
 
-                OnReceived?.Invoke(new ReceivedEventArgs(Id, message));
+                OnReceived?.Invoke(new ReceivedEventArgs(this, message));
             }
         }
     }

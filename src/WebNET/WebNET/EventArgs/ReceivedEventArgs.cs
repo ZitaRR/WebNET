@@ -6,18 +6,18 @@
     public readonly struct ReceivedEventArgs
     {
         /// <summary>
-        ///     The ID of the client that sent this message
+        ///     The client that sent the message
         /// </summary>
-        public int ClientId { get; }
+        public Client Client { get; }
 
         /// <summary>
         ///     The message from the client
         /// </summary>
         public string Message { get; }
 
-        internal ReceivedEventArgs(int id, string message)
+        internal ReceivedEventArgs(Client client, string message)
         {
-            ClientId = id;
+            Client = client;
             Message = message;
         }
     }
