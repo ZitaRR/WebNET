@@ -43,7 +43,7 @@ namespace WebNET
         public EndPoint Remote { get; }
 
         /// <summary>
-        ///     Wraps a TCP client and binds it to the server the TCP client originated from
+        ///     Wraps a TCP client and binds it to the server
         /// </summary>
         /// <param name="server">The server</param>
         /// <param name="tcp">The TCP client</param>
@@ -103,10 +103,15 @@ namespace WebNET
                 if (!Utility.TryDecodeMessage(bytes, out string message))
                     throw new Exception(message);
 
-                await OnReceived ?.Invoke(new ReceivedEventArgs(this, message));
+                await OnReceived?.Invoke(new ReceivedEventArgs(this, message));
             }
         } 
-
+        
+        /// <summary>
+        ///     Writes to the socket stream
+        /// </summary>
+        /// <param name="data">The object to write</param>
+        /// <returns>Task</returns>
         public async Task WriteAsync(object data)
         {
             string json = JsonConvert.SerializeObject(data);
