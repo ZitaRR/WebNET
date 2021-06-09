@@ -114,10 +114,17 @@ namespace WebNET
         /// <returns>Task</returns>
         public async Task WriteAsync(object data)
         {
-            string json = JsonConvert.SerializeObject(data);
-            byte[] bytes = Utility.EncodeMessage(json);
-            await stream.WriteAsync(bytes.AsMemory(0, bytes.Length));
-            await stream.FlushAsync();
+            try
+            {
+                string json = JsonConvert.SerializeObject(data);
+                byte[] bytes = Utility.EncodeMessage(json);
+                await stream.WriteAsync(bytes.AsMemory(0, bytes.Length));
+                await stream.FlushAsync();
+            }
+            catch (JsonSerializationException e)
+            {
+                throw new ArgumentException(e.Message, e);
+            }
         }
     }
 }
