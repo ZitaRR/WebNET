@@ -14,7 +14,6 @@ namespace WebNET
     {
         private static int entities = 0;
 
-        private readonly Server server;
         private readonly TcpClient tcp;
         private readonly NetworkStream stream;
 
@@ -45,11 +44,9 @@ namespace WebNET
         /// <summary>
         ///     Wraps a TCP client and binds it to the server
         /// </summary>
-        /// <param name="server">The server</param>
         /// <param name="tcp">The TCP client</param>
-        internal Client(Server server, TcpClient tcp)
+        internal Client(TcpClient tcp)
         {
-            this.server = server;
             this.tcp = tcp;
             stream = this.tcp.GetStream();
 
