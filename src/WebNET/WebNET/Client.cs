@@ -87,7 +87,9 @@ namespace WebNET
         /// <returns>Task</returns>
         public async Task CloseAsync(string reason = null)
         {
+            State = SocketState.Closing;
             await SendPayload(Utility.BuildCloseFrame());
+            State = SocketState.Closed;
             await OnDisconnected?.Invoke(new DisconnectedEventArgs(this, reason));
         }
 
@@ -98,7 +100,9 @@ namespace WebNET
         /// <returns>Task</returns>
         internal async Task CloseAsync(Exception e)
         {
+            State = SocketState.Closing;
             await SendPayload(Utility.BuildCloseFrame());
+            State = SocketState.Closed;
             await OnDisconnected?.Invoke(new DisconnectedEventArgs(this, e.ToString()));
         }
 
@@ -121,7 +125,8 @@ namespace WebNET
                 if (!Utility.TryDecodeMessage(bytes, out string message))
                 {
                     if (message == "Connection closed")
-                        throw new Exception(message);
+                        await CloseAsync(message);
+                    return;
                 }
 
                 await OnReceived?.Invoke(new ReceivedEventArgs(this, message));
