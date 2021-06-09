@@ -74,11 +74,32 @@ namespace WebNET
                 await OnConnected?.Invoke(new ConnectedEventArgs(this));
                 await ReadAsync();
             }
-            catch (Exception e)
+            catch (SocketException e)
             {
-                State = SocketState.Closed;
-                await OnDisconnected?.Invoke(new DisconnectedEventArgs(this, e.ToString()));
+                await CloseAsync(e);
             }
+        }
+
+        /// <summary>
+        ///     Closes the client connection
+        /// </summary>
+        /// <param name="reason">The reason for closing the connection</param>
+        /// <returns>Task</returns>
+        public async Task CloseAsync(string reason = null)
+        {
+            await SendPayload(Utility.BuildCloseFrame());
+            await OnDisconnected?.Invoke(new DisconnectedEventArgs(this, reason));
+        }
+
+        /// <summary>
+        ///     Closes the client connection with an exception
+        /// </summary>
+        /// <param name="e">The exception</param>
+        /// <returns>Task</returns>
+        internal async Task CloseAsync(Exception e)
+        {
+            await SendPayload(Utility.BuildCloseFrame());
+            await OnDisconnected?.Invoke(new DisconnectedEventArgs(this, e.ToString()));
         }
 
         /// <summary>
@@ -98,7 +119,10 @@ namespace WebNET
                     continue;
 
                 if (!Utility.TryDecodeMessage(bytes, out string message))
-                    throw new Exception(message);
+                {
+                    if (message == "Connection closed")
+                        throw new Exception(message);
+                }
 
                 await OnReceived?.Invoke(new ReceivedEventArgs(this, message));
             }
@@ -122,6 +146,17 @@ namespace WebNET
             {
                 throw new ArgumentException(e.Message, e);
             }
+        }
+
+        /// <summary>
+        ///     Sends a payload to the client
+        /// </summary>
+        /// <param name="bytes">The payload</param>
+        /// <returns>Task</returns>
+        internal async Task SendPayload(byte[] bytes)
+        {
+            await stream.WriteAsync(bytes.AsMemory(0, bytes.Length));
+            await stream.FlushAsync();
         }
     }
 }

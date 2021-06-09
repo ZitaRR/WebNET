@@ -17,6 +17,9 @@
 
         internal DisconnectedEventArgs(Client client, string reason)
         {
+            if (string.IsNullOrEmpty(reason))
+                reason = "No reason provided";
+
             Client = client;
             Reason = reason;
         }

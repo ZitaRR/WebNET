@@ -111,5 +111,14 @@ namespace WebNET
             messageBytes.CopyTo(bytes, 2);
             return bytes;
         }
+
+        /// <summary>
+        ///     Builds the close frame
+        /// </summary>
+        /// <returns>Byte array</returns>
+        internal static byte[] BuildCloseFrame()
+        {
+            return new byte[] { 0b_1000_1000, 0b_0000_0000 };
+        }
     }
 }
