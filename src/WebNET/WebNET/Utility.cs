@@ -97,9 +97,19 @@ namespace WebNET
         ///     Encodes a message
         /// </summary>
         /// <param name="message">The message to encode</param>
-        internal static void EncodeMessage(string message)
+        internal static byte[] EncodeMessage(string message)
         {
-            throw new NotImplementedException(nameof(EncodeMessage));
+            byte[] messageBytes = Encoding.UTF8.GetBytes(message);
+
+            if (messageBytes.Length > 125)
+                throw new ArgumentException("Message is too big. Max size: 125");
+
+            byte[] bytes = new byte[messageBytes.Length + 2];
+            bytes[0] = 0b_1000_0001;
+            bytes[1] = (byte)messageBytes.Length;
+
+            messageBytes.CopyTo(bytes, 2);
+            return bytes;
         }
     }
 }

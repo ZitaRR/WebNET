@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -104,6 +105,14 @@ namespace WebNET
 
                 await OnReceived ?.Invoke(new ReceivedEventArgs(this, message));
             }
+        } 
+
+        public async Task WriteAsync(object data)
+        {
+            string json = JsonConvert.SerializeObject(data);
+            byte[] bytes = Utility.EncodeMessage(json);
+            await stream.WriteAsync(bytes.AsMemory(0, bytes.Length));
+            await stream.FlushAsync();
         }
     }
 }
