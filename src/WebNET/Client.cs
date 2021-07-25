@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using System;
+using System.Text.Json;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
@@ -112,7 +112,7 @@ namespace WebNET
         /// <returns>Task</returns>
         private async Task ReadAsync()
         {
-            while (true)
+            while (State != (SocketState.Closed | SocketState.Closing))
             {
                 if (!stream.DataAvailable)
                     continue;
@@ -134,7 +134,7 @@ namespace WebNET
         } 
         
         /// <summary>
-        ///     Writes to the socket stream
+        ///     Writes an object to the socket stream
         /// </summary>
         /// <param name="data">The object to write</param>
         /// <returns>Task</returns>
@@ -142,15 +142,28 @@ namespace WebNET
         {
             try
             {
-                string json = JsonConvert.SerializeObject(data);
+                string json = JsonSerializer.Serialize(data);
                 byte[] bytes = Utility.EncodeMessage(json);
                 await stream.WriteAsync(bytes.AsMemory(0, bytes.Length));
                 await stream.FlushAsync();
             }
-            catch (JsonSerializationException e)
+            catch { throw; }
+        }
+
+        /// <summary>
+        ///     Writes a string to the socket stream
+        /// </summary>
+        /// <param name="text">The string to write</param>
+        /// <returns>Task</returns>
+        public async Task WriteAsync(string text)
+        {
+            try
             {
-                throw new ArgumentException(e.Message, e);
+                byte[] bytes = Utility.EncodeMessage(text);
+                await stream.WriteAsync(bytes.AsMemory(0, bytes.Length));
+                await stream.FlushAsync();
             }
+            catch { throw; }
         }
 
         /// <summary>
