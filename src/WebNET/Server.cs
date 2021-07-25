@@ -55,7 +55,7 @@ namespace WebNET
                 TcpClient tcp = await listener.AcceptTcpClientAsync();
                 _ = Task.Run(async () =>
                 {
-                    Client client = new(tcp)
+                    ClientConnection client = new(tcp)
                     {
                         OnConnected = OnClientConnected,
                         OnReceived = OnClientReceived,

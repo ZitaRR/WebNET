@@ -10,7 +10,7 @@ namespace WebNET
     /// <summary>
     ///     The client, handles the connection and its' operations
     /// </summary>
-    public sealed class Client
+    public sealed class ClientConnection
     {
         private static int entities = 0;
 
@@ -45,7 +45,7 @@ namespace WebNET
         ///     Wraps a TCP client and binds it to the server
         /// </summary>
         /// <param name="tcp">The TCP client</param>
-        internal Client(TcpClient tcp)
+        internal ClientConnection(TcpClient tcp)
         {
             this.tcp = tcp;
             stream = this.tcp.GetStream();
