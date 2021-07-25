@@ -31,12 +31,15 @@ namespace WebNET
         public event Func<DisconnectedEventArgs, Task> OnClientDisconnected;
 
         /// <summary>
-        ///     Setup the connection details using the machine's IPv4 address
+        ///     Setup the server details using the provided information
         /// </summary>
+        /// <param name="host">The IP address</param>
         /// <param name="port">The port number</param>
-        public Server(int port)
+        public Server(string host, int port)
         {
-            ip = Dns.GetHostEntry(Dns.GetHostName()).AddressList[1];
+            if (!IPAddress.TryParse(host, out ip))
+                throw new ArgumentException("Invalid IP address");
+
             listener = new(ip, port);
         }
 
