@@ -8,9 +8,9 @@
         /// <summary>
         ///     The client that connected
         /// </summary>
-        public Client Client { get; }
+        public ClientConnection Client { get; }
 
-        internal ConnectedEventArgs(Client client)
+        internal ConnectedEventArgs(ClientConnection client)
         {
             Client = client;
         }
